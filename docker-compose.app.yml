@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  #######################################
+  # Core API
+  #######################################
+  api:
+    build:
+      context: ./todomvc-api/
+      args:
+        ARTIFACT_VERSION: ${ARTIFACT_VERSION:-0.0.1-SNAPSHOT}
+    image: ncarlier/keycloak-todomvc-api
+    env_file: ./todomvc-api/conf.env
+    volumes:
+      - conf-data:/etc/todomvc:ro
+    extra_hosts:
+      devbox: 172.17.0.1
+    labels:
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=PathPrefix:/api"
+

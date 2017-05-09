@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  #######################################
+  # Reverse proxy (Traefik)
+  #######################################
+  traefik:
+    image: "traefik:latest"
+    restart: always
+    command: -c /dev/null --web --docker --logLevel=DEBUG
+    ports:
+      - "${PORT:-80}:80"
+      - "${RPROXY_PORT:-8888}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=false"
+
+  #######################################
+  # IAM (Keycloak)
+  #######################################
+  keycloak:
+    image: "jboss/keycloak:latest"
+    restart: always
+    env_file: keycloak/conf.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+    labels:
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=PathPrefix:/auth"
+
+volumes:
+  conf-data:
+  www-data:

@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  #######################################
+  # Configure Keycloak
+  #######################################
+  keycloak_config:
+    build: ./keycloak
+    image: "ncarlier/keycloak-todomvc-config:latest"
+    entrypoint: "/bin/bash"
+    command: ["-c", "/opt/jboss/setup-keycloak.sh"]
+    user: root
+    depends_on:
+      - keycloak
+    env_file: keycloak/conf.env
+    volumes:
+      - conf-data:/var/opt/keycloak
+      - www-data:/var/opt/www
+    labels:
+      - "traefik.enable=false"
+
