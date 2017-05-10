@@ -15,7 +15,6 @@ services:
     env_file: keycloak/conf.env
     volumes:
       - conf-data:/var/opt/keycloak
-      - www-data:/var/opt/www
     labels:
       - "traefik.enable=false"
 

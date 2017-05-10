@@ -36,6 +36,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-validation')
 	compile('org.springframework.boot:spring-boot-starter-web')
   compile('org.keycloak:keycloak-spring-security-adapter:3.1.0.Final')
+  compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.7')
 	runtime('com.h2database:h2')
 	compileOnly('org.projectlombok:lombok')
 	testCompile('org.springframework.boot:spring-boot-starter-test')

@@ -2,7 +2,7 @@ version: "3"
 
 services:
   #######################################
-  # Core API
+  # API
   #######################################
   api:
     build:
@@ -18,4 +18,17 @@ services:
     labels:
       - "traefik.port=8080"
       - "traefik.frontend.rule=PathPrefix:/api"
+
+  #######################################
+  # Webapp
+  #######################################
+  app:
+    build:
+      context: ./todomvc-app/
+    image: ncarlier/keycloak-todomvc-app
+    volumes:
+      - conf-data:/usr/share/nginx/html/conf:ro
+    labels:
+      - "traefik.port=80"
+      - "traefik.frontend.rule=PathPrefixStrip:/app"
 

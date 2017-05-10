@@ -8,6 +8,7 @@ package com.worldline.fe.todo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import lombok.Data;
+import org.springframework.data.annotation.LastModifiedDate;
 
 /**
  * Todo model.
@@ -34,11 +36,8 @@ public class TodoModel {
   @Column(nullable = false)
   private Boolean completed;
   
-  @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+  @LastModifiedDate
   private LocalDateTime date;
-  
-  @Column(nullable = false)
-  private String author;
   
   @PrePersist
   @PreUpdate

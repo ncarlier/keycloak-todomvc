@@ -8,6 +8,7 @@ package com.worldline.fe.security;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
+@ConditionalOnProperty(name = "security.enable", havingValue = "true")
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
   /**
@@ -51,11 +53,9 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     super.configure(http);
-    http
+    http.csrf().disable()
             .authorizeRequests()
-            .anyRequest().authenticated()
-            .and()
-            .logout().logoutSuccessUrl("/bye");
+            .anyRequest().authenticated();
   }
 
 }
