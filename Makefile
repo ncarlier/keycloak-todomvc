@@ -29,7 +29,7 @@ include $(makefiles)/compose.Makefile
 ## Build gradle artifact
 build-jar:
 	echo "Building gradle artifact..."
-	$(shell cd ./todomvc-api; ./gradlew clean build)
+	./todomvc-api/gradlew -p todomvc-api clean build
 
 ## Build gradle artifact
 build-app:

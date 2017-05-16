@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
-@ConditionalOnProperty(name = "security.enable", havingValue = "true")
+@ConditionalOnProperty(name = "security.basic.enabled", havingValue = "true", matchIfMissing = true)
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
   /**

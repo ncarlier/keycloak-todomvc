@@ -75,11 +75,6 @@ echo "Client '$client_id' created."
 # Create roles
 #########################################
 $kcadm create roles -r $realm \
-  -s name=ROLE_USER \
-  -s 'description=Regular user with limited set of permissions'
-[ $? = 0 ] || die "Unable to create 'user' role"
-
-$kcadm create roles -r $realm \
   -s name=ROLE_ADMIN \
   -s 'description=Regular admin with full set of permissions'
 [ $? = 0 ] || die "Unable to create 'admin' role"
@@ -89,32 +84,30 @@ echo "Roles created."
 #########################################
 # Create users
 #########################################
-admin_uid=$($kcadm create users -r $realm \
+uid=$($kcadm create users -r $realm \
   -s username=$KC_REALM_USERNAME \
   -s enabled=true \
   -i)
-[ $? = 0 ] || die "Unable to create 'admin' user"
+[ $? = 0 ] || die "Unable to create '$KC_REALM_USERNAME' user"
 
-$kcadm update users/$admin_uid/reset-password \
+$kcadm update users/$uid/reset-password \
   -r $realm \
   -s type=password \
   -s value=$KC_REALM_PASSWORD \
   -s temporary=true \
   -n
-[ $? = 0 ] || die "Unable to set 'admin' password"
+[ $? = 0 ] || die "Unable to set '$KC_REALM_USERNAME' password"
 
-echo "Users created."
+echo "User '$KC_REALM_USERNAME' created."
 
 #########################################
 # Create groups
 #########################################
 
-admin_gid=$($kcadm create groups -r $realm \
-  -s name=Admin \
-  -i)
+a_gid=$($kcadm create groups -r $realm -s name=Admin -i)
 [ $? = 0 ] || die "Unable to create 'Admin' group"
 
-$kcadm create groups -r $realm -s name=User
+gid=$($kcadm create groups -r $realm -s name=User -i)
 [ $? = 0 ] || die "Unable to create 'User' group"
 
 echo "Groups created."
@@ -130,14 +123,14 @@ echo "Groups configured."
 #########################################
 # Group affectations
 #########################################
-$kcadm update users/$admin_uid/groups/$admin_gid \
+$kcadm update users/$uid/groups/$gid \
   -r $realm \
   -s realm=$realm \
-  -s userId=$admin_uid \
-  -s groupId=$admin_gid \
+  -s userId=$uid \
+  -s groupId=$gid \
   -n
-[ $? = 0 ] || die "Unable to affect 'admin' user to the 'Admin' group"
-echo "Admin user affected to the 'Admin' group."
+[ $? = 0 ] || die "Unable to affect '$uid' user to the '$gid' group"
+echo "$KC_REALM_USERNAME user affected to the 'User' group."
 
 #########################################
 # Getting realm keys

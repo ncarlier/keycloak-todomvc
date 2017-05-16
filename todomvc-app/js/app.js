@@ -2,7 +2,8 @@
 // Full spec-compliant TodoMVC with localStorage persistence
 // and hash-based routing in ~246 effective lines of JavaScript.
 
-var keycloak = Keycloak({ url: 'http://devbox/auth', realm: 'todomvc', clientId: 'todo-webapp' });
+// Instantiate keyclak (if loaded)
+var keycloak = typeof Keycloak !== 'undefined' ? Keycloak({ url: 'http://devbox/auth', realm: 'todomvc', clientId: 'todo-webapp' }) : false;
 
 class RestApi {
   constructor (endpoint) {
@@ -63,27 +64,32 @@ class RestApi {
       keycloak.updateToken(30).success(() => {
         return resolve(keycloak.token);
       }, (err) => {
-        // Fatal error from keycloak server
         console.error('Fatal error when updating the token', err);
         return reject(err);
       })
     });
 
+    // Bypass AuthN if keycloak is not loaded
+    if (!keycloak) {
+      authz = Promise.resolve();
+    }
+
     const _url = this._resolveUrl(url, query);
-    // console.log('Fetcing URL:', _url)
     return authz.then((token) => {
-      headers['Authorization'] = `Bearer ${token}`;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       return fetch(_url, {method, body, headers, credentials});
     })
-    .then(response => {
-      if (response.status === 204 || response.status === 205) {
-        return Promise.resolve();
-      } else if (response.status >= 200 && response.status < 300) {
-        return response.json();
-      } else {
-        return response.json().then((err) => Promise.reject(err));
-      }
-    });
+      .then(response => {
+        if (response.status === 204 || response.status === 205) {
+          return Promise.resolve();
+        } else if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          return response.json().then((err) => Promise.reject(err));
+        }
+      });
   }
   list (params) {
     const {page, size, sort} = params || {};
@@ -167,7 +173,9 @@ var todoStorage = {
   }
 }
 
-// visibility filters
+/**
+ * Visibility filters
+ */
 var filters = {
   all: function(todos) {
     return todos
@@ -184,139 +192,159 @@ var filters = {
   }
 }
 
-// app Vue instance
+/**
+ * App Vue instance
+ */
 var app = new Vue({
-  // app initial state
-data: {
-  todos: [],
-  newTodo: '',
-  editedTodo: null,
-  visibility: 'all'
-},
+  /**
+   * Initial state
+   */
+  data: {
+    todos: [],
+    newTodo: '',
+    editedTodo: null,
+    visibility: 'all'
+  },
 
-  // watch todos change for localStorage persistence
-watch: {
-  todos: {
-    handler: function(todos) {
-      console.log("Something happend to ", todos.length)
+  /**
+   * Watch todos change for localStorage persistence.
+   */
+  watch: {
+    todos: {
+      handler: function(todos) {
+        console.log("Something happend to ", todos.length)
         //todoStorage.save(todos)
+      },
+      deep: true
+    }
+  },
+
+  /**
+   * Computed properties.
+   */
+  computed: {
+    filteredTodos: function() {
+      return filters[this.visibility](this.todos)
     },
-    deep: true
-  }
-},
-
-  // computed properties
-  // http://vuejs.org/guide/computed.html
-computed: {
-  filteredTodos: function() {
-    return filters[this.visibility](this.todos)
-  },
-  remaining: function() {
-    return filters.active(this.todos).length
-  },
-  allDone: {
-    get: function() {
-      return this.remaining === 0
+    remaining: function() {
+      return filters.active(this.todos).length
     },
-    set: function(value) {
-      this.todos.forEach(function(todo) {
-        todo.completed = value
-      });
-      todoStorage.updateAll(this.todos);
+    allDone: {
+      get: function() {
+        return this.remaining === 0
+      },
+      set: function(value) {
+        this.todos.forEach(function(todo) {
+          todo.completed = value
+        });
+        todoStorage.updateAll(this.todos);
+      }
     }
-  }
-},
-
-filters: {
-  pluralize: function(n) {
-    return n === 1 ? 'item' : 'items'
-  }
-},
-created: function() {
-  keycloak.init({ onLoad: 'login-required' })
-    .success((authenticated) => {
-      console.log(authenticated ? 'authenticated' : 'not authenticated');
-      console.log("Ready")
-      this.getTodoFromDb();
-    }).error(err => console.error(err));
-},
-  // methods that implement data logic.
-  // note there's no DOM manipulation here at all.
-methods: {
-
-  getTodoFromDb: function() {
-    console.log("Getting todo list...");
-    todoStorage.fetch().then((tododata) => {
-      console.log("Get data ", tododata);
-      this.todos = tododata;
-    });
   },
-  addTodo: function() {
-    var value = this.newTodo && this.newTodo.trim()
-    if (!value) {
-      return
+
+  /**
+   * Filters.
+   */
+  filters: {
+    pluralize: function(n) {
+      return n === 1 ? 'item' : 'items'
     }
-    var newtodo = {
-      title: value,
-      completed: false
-    };
-    todoStorage.save(newtodo).then(t => {
-      this.todos.push(t);
-      this.newTodo = '';
-    });
   },
-
-  removeTodo: function(todo) {
-    todoStorage.delete(todo).then(t => {
-      this.todos.splice(this.todos.indexOf(todo), 1)
-    });
-  },
-
-  setState: function(todo) {
-    todo.completed = !todo.completed;
-    todoStorage.update(todo);
-  },
-
-  editTodo: function(todo) {
-    // todoStorage.update(todo);
-    this.beforeEditCache = todo.title
-    this.editedTodo = todo
-  },
-
-  doneEdit: function(todo) {
-    console.log("doneEdit", todo)
-    if (!this.editedTodo) {
-      return
-    }
-    this.editedTodo = null
-    todo.title = todo.title.trim()
-    if (!todo.title) {
-      this.removeTodo(todo)
+  /**
+   * Create
+   */
+  created: function() {
+    if (keycloak) {
+      keycloak.init({ onLoad: 'login-required' })
+        .success((authenticated) => {
+          console.log(authenticated ? 'authenticated' : 'not authenticated');
+          console.log("Ready")
+          this.getTodoFromDb();
+        }).error(err => console.error(err));
     } else {
+      this.getTodoFromDb();
+    }
+  },
+
+  /**
+   * Methods that implement data logic.
+   * note there's no DOM manipulation here at all.
+   */
+  methods: {
+
+    getTodoFromDb: function() {
+      console.log("Getting todo list...");
+      todoStorage.fetch().then((tododata) => {
+        console.log("Get data ", tododata);
+        this.todos = tododata;
+      });
+    },
+    addTodo: function() {
+      var value = this.newTodo && this.newTodo.trim()
+      if (!value) {
+        return
+      }
+      var newtodo = {
+        title: value,
+        completed: false
+      };
+      todoStorage.save(newtodo).then(t => {
+        this.todos.push(t);
+        this.newTodo = '';
+      });
+    },
+
+    removeTodo: function(todo) {
+      todoStorage.delete(todo).then(t => {
+        this.todos.splice(this.todos.indexOf(todo), 1)
+      });
+    },
+
+    setState: function(todo) {
+      todo.completed = !todo.completed;
       todoStorage.update(todo);
+    },
+
+    editTodo: function(todo) {
+      // todoStorage.update(todo);
+      this.beforeEditCache = todo.title
+      this.editedTodo = todo
+    },
+
+    doneEdit: function(todo) {
+      console.log("doneEdit", todo)
+      if (!this.editedTodo) {
+        return
+      }
+      this.editedTodo = null
+      todo.title = todo.title.trim()
+      if (!todo.title) {
+        this.removeTodo(todo)
+      } else {
+        todoStorage.update(todo);
+      }
+    },
+
+    cancelEdit: function(todo) {
+      this.editedTodo = null
+      todo.title = this.beforeEditCache
+    },
+
+    removeCompleted: function() {
+      this.todos = filters.active(this.todos)
     }
   },
 
-  cancelEdit: function(todo) {
-    this.editedTodo = null
-    todo.title = this.beforeEditCache
-  },
-
-  removeCompleted: function() {
-    this.todos = filters.active(this.todos)
-  }
-},
-
-  // a custom directive to wait for the DOM to be updated
-  // before focusing on the input field.
-  // http://vuejs.org/guide/custom-directive.html
-directives: {
-  'todo-focus': function(el, value) {
-    if (value) {
-      el.focus()
+  /**
+   * Custom directives.
+   */
+  directives: {
+    'todo-focus': function(el, value) {
+      if (value) {
+        el.focus()
+      }
     }
   }
-}
 })
 
 // handle routing
