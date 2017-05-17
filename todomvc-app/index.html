@@ -5,6 +5,7 @@
     <title>Vue.js • TodoMVC</title>
     <link rel="stylesheet" href="node_modules/todomvc-common/base.css">
     <link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+    <link rel="stylesheet" href="main.css">
     <style> [v-cloak] { display: none; } </style>
   </head>
   <body>
@@ -18,7 +19,7 @@
         <ul class="todo-list">
           <li v-for="todo in filteredTodos" class="todo" :key="todo.id" :class="{ completed: todo.completed, editing: todo == editedTodo }">
             <div class="view">
-              <input class="toggle" type="checkbox" v-model="todo.completed" @click="setState(todo)">
+              <span class="toggle" :class="{ checked: todo.completed }" @click="setState(todo)"></span>
               <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
               <button class="destroy" @click="removeTodo(todo)"></button>
             </div>
@@ -46,7 +47,7 @@
       <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
     </footer>
     <!-- TODO Comment this line if you want to disable keycloak -->
-    <script src="http://devbox/auth/js/2.5.4.final/keycloak.js"></script>
+    <script src="http://devbox/auth/js/keycloak.js"></script>
     <script src="node_modules/vue/dist/vue.js"></script>
     <script src="js/app.js"></script>
   </body>

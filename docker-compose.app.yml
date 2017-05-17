@@ -31,4 +31,7 @@ services:
     labels:
       - "traefik.port=80"
       - "traefik.frontend.rule=PathPrefixStrip:/app"
-
+  cli:
+    build:
+      context: ./todomvc-cli/
+    image: ncarlier/keycloak-todomvc-cli
