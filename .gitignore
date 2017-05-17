@@ -1,3 +1,5 @@
 .gradle/
 todomvc-api/build/
 slides/node_modules/
+.idea
+*.iml
