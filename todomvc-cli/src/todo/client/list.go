@@ -1,17 +1,16 @@
-package commands
+package client
 
 import (
-	"net/http"
 	"log"
-	"api"
 	"encoding/json"
+	"todo/api"
 )
 
-func List(apiUri string) {
-	resp, err := http.Get(apiUri + "todos")
+func (c *Client) List() {
+	resp, err := c.Get("todos", nil)
 
 	if err != nil {
-		log.Fatalf("Unable to contact remote server (%s) : %s", apiUri, err)
+		log.Fatalf("Unable to contact remote server : %s", err)
 	}
 
 	defer resp.Body.Close()

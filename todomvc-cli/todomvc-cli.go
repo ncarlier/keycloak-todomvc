@@ -3,8 +3,9 @@ package main
 import (
 	"os"
 	"github.com/urfave/cli"
-	"commands"
 	"log"
+	"todo/client"
+	"todo/auth"
 )
 
 func main() {
@@ -20,6 +21,11 @@ func main() {
 			Usage: "API endpoint",
 			Value: "http://devbox/api/",
 		},
+		cli.StringFlag{
+			Name: "auth",
+			Usage: "SSO endpoint",
+			Value: "http://devbox/auth/",
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -29,7 +35,36 @@ func main() {
 			Usage:                    "List my TODOs",
 			Before:                startup,
 			Action: func(c *cli.Context) {
-				commands.List(c.GlobalString("api"))
+				httpClient, err := client.TodoMVCClient(c.GlobalString("api"))
+
+				if(err != nil) {
+					log.Fatalf("Unable to initialize http client : %s", err)
+				}
+
+				httpClient.List()
+			},
+		},
+		{
+			Name:                     "login",
+			Usage:                    "Login to remote instance",
+			Before:                startup,
+			Flags:			[]cli.Flag{
+				cli.StringFlag{
+					Name: "username, u",
+					Usage: "Username",
+				},
+				cli.StringFlag{
+					Name: "password, p",
+					Usage: "Password",
+				},
+				cli.StringFlag{
+					Name: "realm, r",
+					Usage: "Realm",
+					Value: "todomvc",
+				},
+			},
+			Action: func(c *cli.Context) {
+				auth.Login(c.GlobalString("auth"), c.String("username"), c.String("password"), c.String("realm"))
 			},
 		},
 	}
