@@ -1,3 +1,54 @@
+/**
+ * Layout stylesheet.
+ */
+
+@import url('https://fonts.googleapis.com/css?family=Amatic+SC');
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+  font-family: 'Amatic SC', cursive;
+  text-transform: none;
+}
+
+body {
+  background: -webkit-radial-gradient(center, circle cover, #394750 0%, #33636b 100%);
+  background: -moz-radial-gradient(center, circle cover, #394750 0%, #33636b 100%);
+  background: -ms-radial-gradient(center, circle cover, #394750 0%, #33636b 100%);
+  background: -o-radial-gradient(center, circle cover, #394750 0%, #33636b 100%);
+  background: -radial-gradient(center, circle cover, #394750 0%, #33636b 100%);
+}
+
+/**
+ * Override Reveal rules.
+ */
+.reveal section img {
+  margin: none;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+.reveal h2 > strong,
+.reveal h3 > strong {
+  font-size: 1.5em;
+}
+.reveal section.big {
+  font-size: 1.5em;
+}
+.reveal p strong,
+.reveal li strong {
+  font-size: 1.5em;
+}
+.reveal p q {
+  quotes: initial;
+}
+.reveal cite {
+  text-align: right;
+  font-style: italic;
+  display: block;
+}
+
+/**
+ * Slides.
+ */
 section.about li {
   list-style-type: none;
 }
@@ -6,13 +57,58 @@ section.about > ul > li {
   display: flex;
 }
 
-.reveal section img {
-  margin: none;
-  background: none;
-  border: none;
-  box-shadow: none;
+section.jwt > ul >li > ul {
+  list-style-type: none;
 }
 
-.reveal h2.black {
+section.jwt > ul >li > ul > li {
+  display: inline;
+}
+
+.jwt-header {
+  color: #fb015b;
+}
+.jwt-payload {
+  color: #d63aff;
+}
+.jwt-signature {
+  color: #00b9f1;
+}
+
+section.conclusion h1,
+section.conclusion h2
+{
   color: black;
 }
+
+/**
+ * Toolkits
+ */
+p.signature {
+  text-align: right;
+  font-style: italic;
+}
+p.signature::before {
+    content: '--';
+}
+img.desaturate {
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  filter: gray;
+}
+.reveal .round-crop {
+  width: 215px;
+  height: 215px;
+  overflow: hidden;
+  border-radius: 50%;
+  display: block;
+  display: inline-block;
+  text-align: center;
+}
+.reveal .round-crop img {
+  margin: 0;
+  max-width: 100%;
+  max-height: 100%;
+  border: 0;
+}
+
