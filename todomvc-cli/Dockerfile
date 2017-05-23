@@ -1,5 +1,8 @@
 FROM golang:1.7.3
 
+RUN apt-get update
+RUN apt-get install jq
+
 RUN mkdir -p /go/src/todo
 
 WORKDIR /go/src/todo
