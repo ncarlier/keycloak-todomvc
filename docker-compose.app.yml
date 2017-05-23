@@ -34,4 +34,8 @@ services:
   cli:
     build:
       context: ./todomvc-cli/
+      args:
+        TODOMVC_CLIENT_SECRET: 663c5cb1-20cb-48a4-b3c1-1fcc2044e4b7
+        API_ENDPOINT: http://devbox/api/
+        AUTH_ENDPOINT: http://devbox/auth/
     image: ncarlier/keycloak-todomvc-cli

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"todo/auth"
+	"os"
 )
 
 type Client struct {
@@ -24,7 +25,11 @@ func (k *Client) Do(method string, url string, query *url.Values, body io.Reader
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", "Bearer "+accessToken)
+
+	if accessToken != "" {
+		req.Header.Add("Authorization", "Bearer "+accessToken)
+	}
+
 	if method == "POST" || method == "PUT" {
 		req.Header.Set("Content-Type", "application/json")
 	}
@@ -35,6 +40,9 @@ func (k *Client) Do(method string, url string, query *url.Values, body io.Reader
 
 	resp, err := client.Do(req)
 
+	if err != nil {
+		log.Fatalf("Can't contact remote server : %s", err)
+	}
 	if resp.StatusCode == 401 {
 		log.Fatalln("Seems that you are not logged in ! Please use login command...")
 	}
@@ -73,7 +81,7 @@ func TodoMVCClient(endpoint string) (*Client, error) {
 		Endpoint:    endpoint,
 		Credentials: creds,
 		ClientId: "todo-cli",
-		ClientSecret: "663c5cb1-20cb-48a4-b3c1-1fcc2044e4b7",
+		ClientSecret: os.Getenv("TODOMVC_CLIENT_SECRET"),
 	}
 
 	return &Client{

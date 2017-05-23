@@ -53,7 +53,7 @@ func GetAuthRealm(authRealm string) (*AuthRealmResponse, error) {
 func GetOfflineToken(tokenServiceUrl string, creds *Credentials) (*TokenInfos, error) {
 	r, err := http.PostForm(tokenServiceUrl+"/token", url.Values{
 		"client_id":  {"todo-cli"},
-		"client_secret": {"663c5cb1-20cb-48a4-b3c1-1fcc2044e4b7"},
+		"client_secret": {os.Getenv("TODOMVC_CLIENT_SECRET")},
 		"username":   {creds.Username},
 		"password":   {creds.Password},
 		"grant_type": {"password"},
@@ -118,8 +118,9 @@ func LoadTokenInfos() (*TokenInfos, error) {
 }
 
 func GetAccessToken(config *Config) (string, error) {
+	// Do not throw any error when there is no credentials
 	if config.Credentials == nil {
-		return "", errors.New("No credentials. Please login first.")
+		return "", nil
 	}
 	r, err := http.PostForm(config.Credentials.TokenService+"/token", url.Values{
 		"grant_type": {"refresh_token"},

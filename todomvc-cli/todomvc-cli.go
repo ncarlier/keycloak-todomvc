@@ -20,11 +20,13 @@ func main() {
 			Name: "api",
 			Usage: "API endpoint",
 			Value: "http://devbox/api/",
+			EnvVar: "API_ENDPOINT",
 		},
 		cli.StringFlag{
 			Name: "auth",
 			Usage: "SSO endpoint",
 			Value: "http://devbox/auth/",
+			EnvVar: "AUTH_ENDPOINT",
 		},
 	}
 
