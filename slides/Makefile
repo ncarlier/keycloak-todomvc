@@ -20,3 +20,11 @@ makefiles:=$(root_dir)/../makefiles
 include $(makefiles)/help.Makefile
 include $(makefiles)/docker.Makefile
 
+# Build static website
+build-site:
+	npm install
+	npm run dist
+	mkdir _build/assets
+	cp -R css fonts _build/assets/
+
+
