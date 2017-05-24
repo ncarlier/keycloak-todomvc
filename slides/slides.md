@@ -20,7 +20,7 @@ revealOptions:
   - **Nicolas Carlier**
   - <i class="fa fa-twitter"></i> [@ncarlier](https://twitter.com/ncarlier)
   - <i class="fa fa-github"></i> [github.com/ncarlier](https://github.com/ncarlier)
-- ![@mmarie](img/mmarie.png)
+- ![@mmarie](img/mmarie.jpg) <!-- .element: class="desaturate" -->
   - **Maximilien Marie**
   - <i class="fa fa-github"></i> [github.com/akraxx](https://github.com/akraxx)
 
