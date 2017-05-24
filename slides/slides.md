@@ -45,9 +45,9 @@ revealOptions:
 
 - Login form
 - Self registration
+- Email verification
 - Account management
 - Password recovery
-- Email verification
 - Two factor authentication (OTP)
 - Social logins
 - ...
@@ -75,7 +75,7 @@ revealOptions:
 
 ---
 
-## Should we built that on your **own?**
+## Should you built that on your **own?**
 
 ----
 
