@@ -35,47 +35,103 @@ revealOptions:
 
 > I'm sorry Dave, I'm afraid I can't do that.
 
+Note:
+
+In order to have the same vocabulary, here a quick definition:
+AuthN is about verify and confirm the identity claimed by a subject.
+AutnZ is about verify access rights of a known user to resources.
+
 ---
 
 ## What can we expect from an AuthN service?
+
+Note:
+
+So if we want to build or use an AuthN service, what can we expect?
 
 ----
 
 ### Functional Requirements
 
-- Login form
-- Self registration
-- Email verification
-- Account management
-- Password recovery
-- Two factor authentication (OTP)
-- Social logins
-- ...
+- Login form <!-- .element: class="fragment" -->
+- Self registration <!-- .element: class="fragment" -->
+- Email verification <!-- .element: class="fragment" -->
+- Account management <!-- .element: class="fragment" -->
+- Password recovery <!-- .element: class="fragment" -->
+- Two factor authentication (OTP) <!-- .element: class="fragment" -->
+- Social logins <!-- .element: class="fragment" -->
+- ... <!-- .element: class="fragment" -->
+
+Note:
+
+First regarding the functional requirements:
+Obviously we want to expose a login form or a access point to this service. You
+may want to customize the look and feel regarding your customer or your needs.
+You may want to allow your users the ability to self register. This feature
+often needs other mechanisms like e-mail verification.
+You may want to provide account management for your customer and also a self
+management for your users.
+If your authentication is password based, you certainly want a lost password
+feature.
+Again if you are password based, you way want to harden the security by adding
+other mechanisms like One Time Password.
+Something quite usual nowadays, you may want to delegate this authentication to
+a social provider (such as Twitter, Facebook, Google, ...).
 
 ----
 
 ### Non Functional Requirements
 
-- Highly available
-- Uses state of the art industry standards
-- Interoperable
-- Auditable
-- Administrable
-- Secure
+- Highly available <!-- .element: class="fragment" -->
+- Uses state of the art industry standards <!-- .element: class="fragment" -->
+- Interoperable <!-- .element: class="fragment" -->
+- Auditable <!-- .element: class="fragment" -->
+- Administrable <!-- .element: class="fragment" -->
+- Secure <!-- .element: class="fragment" -->
+
+Note:
+
+Now, regarding the non-functional requirements:
+
+Such a system is critic. You want high availability for this service.
+This service should also use the state of the art industry standards.
+You way want some interoperability with other services. Maybe the authentication
+service of your customer or maybe your customer user referential.
+Any service related to security aspects must be auditable. The ability to trace
+every access, every actions. Especially if you are in a PCI context.
+Such a complex service should provide administrations features and user
+interfaces.
+And last but not the least! The service have to be secure!
 
 ----
 
-### And what do we mean by **secure**?
+### And what we mean by **secure**?
 
-- What about **encryption**?
-- What about **hashing**?
-- What about **password policy**?
-- What about **storage**?
-- What about **used libraries** and **patch management**?
+- <!-- .element: class="fragment" --> What about **encryption**?
+- <!-- .element: class="fragment" --> What about **hashing**?
+- <!-- .element: class="fragment" --> What about **password policy**?
+- <!-- .element: class="fragment" --> What about **storage**?
+- <!-- .element: class="fragment" --> What about **used libraries** and **patch management**?
+
+Note:
+
+And what do we meant by secure?
+Encryption: What are the algorithms used by your service to cypher channels and
+data? Are these algorithms still secure?
+Hashing: Same question. SHA1 is considerate as deprecated.
+What is your password policy? Can you tolerate a weak password?
+How do you store sensitives informations like personal data and credentials?
+Which libraries are you using? Is there any published security issue in it?
+
+You should be able to answer those questions.
 
 ---
 
 ## Should you built that on your **own?**
+
+Note:
+
+So considering all these requirements. Should we built that by ourself?
 
 ----
 
@@ -86,7 +142,7 @@ The crazy developer <!-- .element: class="signature" -->
 
 ----
 
-> "Come on, it's just glue. Their is tons of libraries to help you."
+> "Come on, it's just glue. There is tons of libraries to help you."
 
 Spring is coming <!-- .element: class="signature" -->
 
@@ -105,11 +161,21 @@ The special advisor that don't code anymore <!-- .element: class="signature" -->
 - [Spring Cloud Security](https://cloud.spring.io/spring-cloud-security/)
 - [Apache Shiro](https://shiro.apache.org/)
 
+Note:
+
+Ok you are brave and this is great. In this case here some DIY helpers to help
+you in that quest.
+
 ---
 
 ## And what **if**...
 
 We delegate **ALL** of this?
+
+Note:
+
+But if like me you are not so brave, what if we delegate all of this to someone
+else?
 
 ---
 
@@ -121,10 +187,15 @@ RSSI <!-- .element: class="signature" -->
 
 Ok... but which one? Which version? Can I use my own federation provider? Is it
 scalable? ...
+<!-- .element: class="fragment" -->
 
 ---
 
 ![Keycloak](img/keycloak-logo.png)
+
+Note:
+
+Let us present you a more simple and relevant solution: Keycloak
 
 ---
 
@@ -159,6 +230,10 @@ Impersonation, and [more](https://keycloak.gitbooks.io/documentation/server_admi
 | OpenID Connect 1.0 | OpenID Foundation | 2014
 | JWT | RFC 7519 | 2015
 
+Note:
+
+Let's have a very quick glance at those standards...
+
 ----
 
 ### OAuth2
@@ -175,11 +250,11 @@ Authorization, *NOT* Authentication!
 
 OpenID Connect - *NOT* OpenID
 
-- Authentication layer on top of OAuth 2.0
-- Verify the identity of an end-user
-- Obtain basic profile information about the end-user
-- RESTful HTTP API, using JSON as data format
-- Allows clients of all types (web-based, mobile, JavaScript)
+- Authentication layer on top of OAuth 2.0 <!-- .element: class="fragment" -->
+- Verify the identity of an end-user <!-- .element: class="fragment" -->
+- Obtain basic profile information about the end-user <!-- .element: class="fragment" -->
+- Standardized RESTful API, using JSON as data format <!-- .element: class="fragment" -->
+- Support many types of clients (web-based, mobile, JavaScript) <!-- .element: class="fragment" -->
 
 
 [OpenID Foundation](http://openid.net/connect)
@@ -220,6 +295,10 @@ It’s a JSON object encoded and signed to be used like a token.
   - Apache HTTP Server (mod_auth_mellon)
   - And some generic implementations
 
+Note:
+
+Keycloak comes with a lot of adapters in order to simplify its integration.
+
 ---
 
 <!-- .slide: data-background="img/demo.jpg" -->
@@ -227,6 +306,10 @@ It’s a JSON object encoded and signed to be used like a token.
 ## DEMO TIME!
 
 > I can see no reason for it to fail
+
+Note:
+
+It is over for the theory. Demo time!
 
 ---
 
