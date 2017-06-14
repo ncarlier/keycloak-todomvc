@@ -5,3 +5,4 @@ slides/node_modules/
 *.iml
 todomvc-cli/vendor/
 todomvc-cli/target/
+slides/_build/

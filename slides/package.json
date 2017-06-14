@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "reveal-md slides.md"
+    "start": "reveal-md slides.md",
+    "dist": "reveal-md slides.md --static _build"
   },
   "author": "",
   "license": "MIT",
