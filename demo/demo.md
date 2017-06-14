@@ -1,6 +1,5 @@
 Demo Time !
 
-- https://jsonformatter.curiousconcept.com/
 - https://jwt.io/
 
 Main goal of this demo is to show you how it's simple to fully delegate the AuthN and AuthZ part to keycloak.
@@ -132,6 +131,15 @@ cat /root/.todomvc/creds.json | jq .
 
 The difference between this response and the one for the webapp is the expiration date of the refresh token.
 In our example, for every http call we will use this refresh token to get a brand new access token!
+
+Go back to the keycloak admin page, click on *users* search for the *todo* user, click on consent tab and revoke offline token.
+
+Now if you try to do the following command :
+```bash
+todomvc ls
+```
+
+You will get a bad request.
 
 ## Authorization
 
