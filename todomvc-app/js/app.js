@@ -218,7 +218,6 @@ var app = new Vue({
       deep: true
     }
   },
-
   /**
    * Computed properties.
    */
@@ -302,6 +301,7 @@ var app = new Vue({
 
     setState: function(todo) {
       todo.completed = !todo.completed;
+      console.log("Set state" + todo);
       todoStorage.update(todo);
     },
 
@@ -320,7 +320,7 @@ var app = new Vue({
       todo.title = todo.title.trim()
       if (!todo.title) {
         this.removeTodo(todo)
-      } else {
+       } else {
         todoStorage.update(todo);
       }
     },

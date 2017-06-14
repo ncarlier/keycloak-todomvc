@@ -1,5 +1,5 @@
 .SILENT :
-.PHONY : build-jar build-app config-keycloak build deploy undeploy
+.PHONY : build-jar build-app build-cli config-keycloak build deploy undeploy
 
 # Artifact version
 VERSION?=0.0.1-SNAPSHOT
@@ -27,6 +27,17 @@ include $(makefiles)/compose.Makefile
 build-jar:
 	echo "Building gradle artifact..."
 	./todomvc-api/gradlew -p todomvc-api clean build
+
+## Build gradle artifact
+build-app:
+	echo "Downloading npm dependencies..."
+	$(shell cd ./todomvc-app; npm install)
+
+## Build cli
+build-cli:
+	echo "Building CLI package..."
+	$(shell go get -v github.com/urfave/cli)
+	$(shell cd ./todomvc-cli; env GOOS=linux GOARCH=386 go build -o target/todomvc)
 
 $(artifact):
 	echo "$(artifact) artifact not builded. Building..."

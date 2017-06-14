@@ -3,4 +3,6 @@ todomvc-api/build/
 slides/node_modules/
 .idea
 *.iml
+todomvc-cli/vendor/
+todomvc-cli/target/
 slides/_build/
