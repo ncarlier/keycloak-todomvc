@@ -60,7 +60,11 @@ class RestApi {
       headers['Content-Type'] = 'application/json';
     }
 
-    let authz = new Promise(function (resolve, reject) {
+    const authz = new Promise(function (resolve, reject) {
+      if (!keycloak) {
+        // Bypass AuthN if keycloak is not loaded
+        return resolve();
+      }
       keycloak.updateToken(30).success(() => {
         return resolve(keycloak.token);
       }, (err) => {
@@ -68,11 +72,6 @@ class RestApi {
         return reject(err);
       })
     });
-
-    // Bypass AuthN if keycloak is not loaded
-    if (!keycloak) {
-      authz = Promise.resolve();
-    }
 
     const _url = this._resolveUrl(url, query);
     return authz.then((token) => {
