@@ -1,81 +1,104 @@
-Demo Time !
+# DEMO
 
-- https://jwt.io/
+Main goal of this demo is to show you how it is simple to delegate the
+AuthN and AuthZ part of your application to [Keycloak](http://www.keycloak.org/).
 
-Main goal of this demo is to show you how it's simple to fully delegate the AuthN and AuthZ part to keycloak.
-We choosed something very simple, it's a todo webapp where you can add some tasks to complete.
-There are 3 parts, the backend in Java (built with Sprint Boot), the Webapp in VueJS and a commandline in Golang.
+We chose a very simple sample app to secure: It's the well known
+[Todo MVC App](http://todomvc.com/).
+
+The application consists of:
+
+- a **backend** built in Java with Sprint Boot
+- a **webapp** built in Javascript with VueJS
+- and a **CLI** built in Golang
 
 ## Quickstart
 
 Let's start everything :
 
 ```bash
-make deploy
+make build deploy
 ```
 
-This command will build every part of the application : back, webapp and cli images.
-As you can see it's also building and launching keycloak, we will use it just after.
+This command will build and deploy every services of the application thanks to
+Docker compose.
 
-Let's see our wondeful application !!
-```bash
-http://devbox/app/
+During the deployment, you can see the configuration phase of Keycloak.
 
-curl -s http://devbox/api/todos | jq .
+Let's see our wonderful application:
 
-docker run --rm -ti --add-host="devbox:172.17.0.1" ncarlier/keycloak-todomvc-cli
-todomvc ls
-```
+With the browser: [http://devbox/app/](http://devbox/app)
+
+With the shell: `curl -s http://devbox/api/todos | jq .`
+
+With the CLI: `make cli`
+
+Everything should work but without any authentication. Let's secure this!
 
 ## Secure the back
 
-It's great but... Not very secured!
-First thing to do : secure the back
+We have to activate Spring Security:
 
 ```bash
-> todomvc-api/conf.env
-SECURITY_BASIC_ENABLED=true
-MANAGEMENT_SECURITY_ENABLED=true
+vi todomvc-api/conf.env
+# Uncomment the following lines:
+# SECURITY_BASIC_ENABLED=true
+# MANAGEMENT_SECURITY_ENABLED=true
 ```
+
+Then redeploy the API:
 
 ```bash
 make deploy
 ```
 
-Launch the curl again :
+Launch cURL again:
+
 ```bash
 curl -s http://devbox/api/todos | jq .
 ```
-Our API is now secured and you have to be logged in to make a REST request
-The only thing we did in our app is to extend the security adapter provided by keycloak !
-There is a lot of available adapters, but of course, it's possible to do it manually because keycloak is based on OIDC standard.
 
-Go to the app now :
-http://devbox/app/
-Open the browser console to inspect network requests, you will get the same 401 error as before.
+The API is now secured and you have to be logged in to make a REST request.
+The only thing we did in our app is to extend the security adapter provided by
+Keycloak. There is many other adapters. If you want you can also manually
+validate the token using a very simple Servlet Filter (thanks to OIDC and JWT).
 
-## Integrate keycloak on our webapp
+If we try to test our [Webapp](http://devbox/app/) we will get the same `401`
+error. Let's fix that.
+
+## Integrate Keycloak into our Webapp
+
+We have to import the Javascript adapter:
 
 ```bash
-> todomvc-app/index.html
-<script src="http://devbox/auth/js/keycloak.js"></script> # Uncomment line 50
+vi todomvc-app/index.html
+# Uncomment the following line:
+# <script src="http://devbox/auth/js/keycloak.js"></script>
 ```
 
+Then redeploy the APP:
+
 ```bash
+make build service=app
 make deploy
 ```
 
-Go back to http://devbox/app/
-Make sure you still have you browser console active to spy network requests (XHR).
-You are automatically redirected to keycloak ! 
-Enter todo/todo, and put a new password for the todo user.
-Click on login, you are now logged on the todo app!
+Go back to the [Webapp](http://devbox/app/)
 
-In the console you will see the 2 following requests :
+Make sure you still have you browser console active to spy network requests.
+As you can see you are now automatically redirected to Keycloak login page.
+
+Enter todo/todo, and update the todo user password as asked.
+
+Click on login and you should be logged in the Todo App.
+
+What happened? In the console you should see following requests:
+
+```
 POST http://devbox/auth/realms/todomvc/protocol/openid-connect/token
 
 Response (use https://jsonformatter.curiousconcept.com/ to format the response) :
-{  
+{
    "access_token":"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJFa1JxNUN...",
    "expires_in":300,
    "refresh_expires_in":1800,
@@ -85,69 +108,102 @@ Response (use https://jsonformatter.curiousconcept.com/ to format the response) 
    "not-before-policy":0,
    "session_state":"f2c44dc9-b560-43e7-9b67-b0a742cef625"
 }
+```
 
-As you can see you have 2 tokens : access and refresh.
-The access token is the one used to call the API.
-Refresh token is used to call the keycloak token endpoint to generate a new access token. That's why the refresh token has a longer lifetime.
+As you can see you have some tokens:
+- The access token
+- The Refresh token
+- And the ID token
 
-The second request is used to get the todos :
+The access token is the one used to call the API. This token has a short TTL.
+Once expired, the refresh token is used to call the Keycloak token endpoint in
+order to get a new access token. This token has a longer TTl and can be used
+only once.
+The ID token contains informations regarding the user.
+
+You can decode those tokens using [http://jwt.io](http://jwt.io). You will see a
+lot of attributes in the payload like:
+
+- sub (subject): Who the token has been generated for
+- exp (expiration): When the token will expire (by default 300s)
+- ...
+
+The second request is used to retrieve the todos:
+
+```
 GET http://devbox/api/todos
+```
 
-Look at the headers of the request, you will see that the authorization header has been automatically added. 
-
-If we inspect this token in http://jwt.io, we can see that we have a lot of data in the payload, some of them :
-Issuer (iss) : App who generated the token
-Aud (audience) : Who the token has been generated for
-exp (Expiration) : When the token will expire, by default 300s (5m)
+Look at the headers of the request, you will see that the authorization header
+has been automatically added.
 
 ## CLI
 
-It's time to see how we can integrate keycloak and our the command line
+It's time to see how we can integrate Keycloak with our CLI.
+Let's try to login.
+
 
 ```bash
+make cli
 todomvc login -u todo -p todo
 ```
-Unable to get offline token : 400 Bad Request : {"error":"unauthorized_client","error_description":"UNKNOWN_CLIENT: Client was not identified by any client authenticator"}
 
-Error is very explicit, there is not client in keycloak for the command line...
-Go to http://devbox/auth/, click on 'Administration Console' with admin/admin as credentials.
+We should be unable to get offline token. Keycloak response:
 
-Go to clients > create
-Client id : todo-cli
-Click on save
+```
+400 Bad Request
+{
+  "error":"unauthorized_client",
+  "error_description":"UNKNOWN_CLIENT: Client was not identified by any client authenticator"
+}
+```
 
-Go back to the container an type :
+The error is very explicit: there is not configured client in Keycloak for the
+CLI.
+You have to declare a client for the CLI. In order to do that, go to the
+[Administration Console](http://devbox/auth) with admin/admin as credentials.
+
+Create a new client with the following client id: `todo-cli`.
+
+Save and go back to the CLI:
 
 ```bash
 todomvc login -u todo -p todo
 todomvc ls
 ```
 
-In fact, the login step just store a file "creds.json" containing the response from keycloak :
+Behind the scene the login command store a file `creds.json` containing the
+response from Keycloak:
 
 ```bash
 cat /root/.todomvc/creds.json | jq .
 ```
 
-The difference between this response and the one for the webapp is the expiration date of the refresh token.
-In our example, for every http call we will use this refresh token to get a brand new access token!
+In this specific implementation the Access Token will not be used. For every
+call, the refresh token will be used to retrieve a brand new Access Token.
+The refresh token has no TTL. It's an offline token.
 
-Go back to the keycloak admin page, click on *users* search for the *todo* user, click on consent tab and revoke offline token.
+You can manage this offline token in the admin console:
+click on *users* search for the *todo* user, click on consent tab and revoke
+offline token.
 
-Now if you try to do the following command :
+Now if you try to use again the CLI:
+
 ```bash
 todomvc ls
 ```
 
-You will get a bad request.
+You will get a bad request and you have to login again.
 
-## Authorization
+## Quick glance at Authorization
 
-We saw the authentication part, but not so much on authorization ! Let's see a little example of how we can use keycloak roles in our applications.
+We saw the authentication part, but not so much on authorization.
+Let's see a little example of how we can use Keycloak roles in our applications.
 
-Go to the page http://devbox/api/
-Try to explore /api/todos. The response should be 200 with the todo list.
-No explore /api/env... The response should be :
+Open the [API Browser](http://devbox/api/).
+Try to fetch `/api/todos`. The response should be `200` with the todo list.
+
+Now, fetch `/api/env`. The response should be :
 
 ```json
 {
@@ -159,14 +215,20 @@ No explore /api/env... The response should be :
 }
 ```
 
-Go to http://devbox/auth/, click on 'Administration Console' with admin/admin as credentials.
+This endpoint is a Spring Actuator endpoint. And Spring protect this endpoint by
+requiring the ACTUATOR role. We have to give this role to our user.
 
-Create the role 'ROLE_ACTUATOR'
-Add the role to the user 'todo'
+Open again the [Admin Console](http://devbox/auth/), and create the role:
+`ROLE_ACTUATOR` (The 'ROLE_' prefix is required by Spring Security).
+Then affect this role to the 'todo' user.
 
-Open a new window in private navigation (or clear storage from devbox)
-Go to : http://devbox/api/ and explore /api/env.
-You should see all system properties !
+Open a new window in private navigation (or clear cookies and local storage)
+Open the [API Browser](http://devbox/api/) and fetch again `/api/env`.
 
-Open http://devbox/app/ and open the browser console to capture the access token. Copy it and paste it to jwt.io. 
-The role actuator is now in the list of roles !
+You should see all system properties.
+
+If you extract and decode the Access Token thanks to the development console.
+You will see this role inside the payload.
+
+
+Thanks.
