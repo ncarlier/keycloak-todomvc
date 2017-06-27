@@ -31,11 +31,26 @@ services:
     labels:
       - "traefik.port=80"
       - "traefik.frontend.rule=PathPrefixStrip:/app"
+
+  #######################################
+  # CLI
+  #######################################
   cli:
     build:
       context: ./todomvc-cli/
-      args:
-        TODOMVC_CLIENT_SECRET: 663c5cb1-20cb-48a4-b3c1-1fcc2044e4b7
-        API_ENDPOINT: http://devbox/api/
-        AUTH_ENDPOINT: http://devbox/auth/
     image: ncarlier/keycloak-todomvc-cli
+    env_file: ./todomvc-cli/conf.env
+    labels:
+      - "traefik.enable=false"
+
+  #######################################
+  # Slides
+  #######################################
+  slides:
+    build:
+      context: ./slides/
+    image: ncarlier/keycloak-todomvc-slides
+    labels:
+      - "traefik.port=80"
+      - "traefik.frontend.rule=PathPrefixStrip:/slides"
+

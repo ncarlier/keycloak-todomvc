@@ -1,26 +1,33 @@
-FROM golang:1.7.3
+#########################################
+# Build stage
+#########################################
+FROM golang:1.8 AS built-cli
+MAINTAINER Nicolas Carlier <nicolas.carlier@worldline.com>
 
-RUN apt-get update
-RUN apt-get install jq
+# Copy suources into the container
+ADD . /go/src/todo
 
-RUN mkdir -p /go/src/todo
-
+# Set working directory
 WORKDIR /go/src/todo
 
-ARG TODOMVC_CLIENT_SECRET
-ENV TODOMVC_CLIENT_SECRET $TODOMVC_CLIENT_SECRET
+# Build the binary
+RUN go get github.com/urfave/cli && \
+      GOOS=linux GOARCH=amd64 go build -o todomvc
 
-ARG API_ENDPOINT
-ENV API_ENDPOINT $API_ENDPOINT
+#########################################
+# Final stage
+#########################################
+#FROM alpine
+FROM debian
+MAINTAINER Nicolas Carlier <nicolas.carlier@worldline.com>
 
-ARG AUTH_ENDPOINT
-ENV AUTH_ENDPOINT $AUTH_ENDPOINT
+# Install JQ
+#RUN apk add --no-cache jq
+RUN apt update && apt install -y jq
 
-RUN go get -v github.com/urfave/cli
+# Fix lib dep
+#RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
 
-ADD src/todo .
-ADD todomvc-cli.go todomvc-cli.go
+# Install binary
+COPY --from=built-cli /go/src/todo/todomvc /usr/local/bin/
 
-RUN env GOOS=linux GOARCH=amd64 go build -v -o /usr/local/sbin/todomvc
-
-ENTRYPOINT ["/bin/bash"]

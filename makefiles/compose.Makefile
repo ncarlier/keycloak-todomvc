@@ -17,6 +17,11 @@ wait:
 	done;\
 	echo "Timeout" && exit 1
 
+## Build services
+build:
+	echo "Building services ..."
+	docker-compose $(COMPOSE_FILES) build $(service)
+
 ## Config a service ($$service)
 config: wait
 	echo "Configuring $(service)..."

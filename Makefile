@@ -1,14 +1,5 @@
 .SILENT :
-.PHONY : build-jar build-app build-cli config-keycloak build deploy undeploy
-
-# Artifact version
-VERSION?=0.0.1-SNAPSHOT
-
-# Execution profile
-PROFILE?=local
-
-# Builded artifact
-artifact=todomvc-api/build/libs/todomvc-api-$(VERSION).jar
+.PHONY : config-keycloak deploy undeploy cli
 
 # Compose files
 define COMPOSE_FILES
@@ -23,37 +14,12 @@ makefiles:=$(root_dir)/makefiles
 include $(makefiles)/help.Makefile
 include $(makefiles)/compose.Makefile
 
-## Build gradle artifact
-build-jar:
-	echo "Building gradle artifact..."
-	./todomvc-api/gradlew -p todomvc-api clean build
-
-## Build gradle artifact
-build-app:
-	echo "Downloading npm dependencies..."
-	$(shell cd ./todomvc-app; npm install)
-
-## Build cli
-build-cli:
-	echo "Building CLI package..."
-	$(shell go get -v github.com/urfave/cli)
-	$(shell cd ./todomvc-cli; env GOOS=linux GOARCH=386 go build -o target/todomvc)
-
-$(artifact):
-	echo "$(artifact) artifact not builded. Building..."
-	$(MAKE) build-jar
-
 ## Configure keycloak
 config-keycloak:
 	docker-compose $(COMPOSE_FILES) run keycloak_config
 
-## Build services
-build: $(artifact)
-	echo "Building services ..."
-	docker-compose $(COMPOSE_FILES) build
-
 ## Deploy containers to Docker host
-deploy: build
+deploy:
 	echo "Deploying infrastructure..."
 	-cat .env
 	docker-compose up -d
@@ -69,4 +35,12 @@ undeploy:
 	echo "Un-deploying infrastructure..."
 	docker-compose $(COMPOSE_FILES) down
 	echo "Infrastructure un-deployed."
+
+## Start a CLI
+cli:
+	echo "Starting CLI..."
+	docker run --rm -it \
+		--add-host="devbox:172.17.0.1" \
+		--env-file todomvc-cli/conf.env \
+		ncarlier/keycloak-todomvc-cli
 

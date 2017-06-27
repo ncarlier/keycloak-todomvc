@@ -1,14 +1,15 @@
-# Keycloak TODOMVC slides.
-#
-# VERSION 1.0
+#########################################
+# Build stage
+#########################################
+FROM node:6-onbuild AS built-app
+RUN make
 
-FROM node:6-onbuild
+#########################################
+# Final stage
+#########################################
+FROM nginx:latest
+MAINTAINER Nicolas Carlier <nicolas.carlier@worldline.com>
 
-MAINTAINER Nicolas Carlier <https://github.com/ncarlier>
+# Install static files
+COPY --from=built-app /usr/src/app/_build /usr/share/nginx/html
 
-# Ports
-EXPOSE 3000
-
-ENTRYPOINT ["/usr/local/bin/npm"]
-
-CMD ["start"]
