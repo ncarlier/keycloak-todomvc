@@ -20,9 +20,22 @@ revealOptions:
   - **Nicolas Carlier**
   - <i class="fa fa-twitter"></i> [@ncarlier](https://twitter.com/ncarlier)
   - <i class="fa fa-github"></i> [github.com/ncarlier](https://github.com/ncarlier)
+  - <i class="fa fa-pencil"></i> [Worldline engineering Blog](https://blog.worldline.tech)
 - ![@mmarie](img/mmarie.jpg) <!-- .element: class="desaturate" -->
   - **Maximilien Marie**
+  - <i class="fa fa-linkedin"></i> [LinkedIn](https://www.linkedin.com/in/maximilienmarie)
   - <i class="fa fa-github"></i> [github.com/akraxx](https://github.com/akraxx)
+
+----
+
+<!-- .slide: data-background="img/worldline-bg.jpg" -->
+
+![Worldline](img/worldline.png)
+
+----
+
+<!-- .slide: data-background="#2f1c6e" -->
+![OpneSource](img/opensource.jpg)
 
 ---
 
