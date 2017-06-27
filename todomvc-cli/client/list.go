@@ -11,12 +11,14 @@ func (c *Client) List() {
 
 	if err != nil {
 		log.Fatalf("Unable to contact remote server : %s", err)
+		return
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		log.Fatalf("Bad response from server : %s (%d)", resp.Status, resp.StatusCode)
+		return
 	}
 
 	todosResponse := new(api.TodosResponse)
